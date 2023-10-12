@@ -3,15 +3,39 @@ pragma solidity ^0.8.9;
 
 contract Stake {
     uint256 public middlePool; // Middle pool
-    mapping(address => uint256) _stakingBalance; // Staking balance for each address
+    mapping(address => uint256) public _stakingBalance; // Staking balance for each address
 
     /**
-     * Stake eth to the pool
+     * Update deposit value
+     *
+     * @param _amount amount of deposit event
+     */
+    event Deposit(address _depositAddress, uint256 _amount);
+
+    /**
+     * Update withdraw value
+     *
+     * @param _amount amount of withdraw event
+     */
+    event Withdraw(address _withdrawAddress, uint256 _amount);
+
+    /**
+     * Set middle pool value to 0
      *
      */
-    function stake() external payable {
+    constructor() {
+        middlePool = 0;
+    }
+
+    /**
+     * Deposit eth to the pool
+     *
+     */
+    function deposit() external payable {
         _stakingBalance[msg.sender] += msg.value;
         middlePool += msg.value;
+
+        emit Deposit(msg.sender, msg.value);
     }
 
     /**
@@ -28,5 +52,7 @@ contract Stake {
         payable(msg.sender).transfer(_amount);
         _stakingBalance[msg.sender] -= _amount;
         middlePool -= _amount;
+
+        emit Withdraw(msg.sender, _amount);
     }
 }
