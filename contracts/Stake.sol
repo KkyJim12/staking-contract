@@ -2,8 +2,8 @@
 pragma solidity ^0.8.9;
 
 contract Stake {
-    uint256 public middlePool; // Middle pool
-    mapping(address => uint256) public _stakingBalance; // Staking balance for each address
+    uint256 public middlePool; // middle pool
+    mapping(address => uint256) public stakingBalance; // staking balance for each address
 
     struct Transaction {
         address requestAddress;
@@ -16,14 +16,14 @@ contract Stake {
     /**
      * Update latest transaction
      *
-     * @param _requestAddress address of interacting user
-     * @param _actionType type of action, must be deposit or withdraw
-     * @param _amount amount of transaction event
+     * @param requestAddress address of interacting user
+     * @param actionType type of action, must be deposit or withdraw
+     * @param amount amount of transaction event
      */
     event UpdateLatestTransaction(
-        address _requestAddress,
-        string _actionType,
-        uint256 _amount
+        address requestAddress,
+        string actionType,
+        uint256 amount
     );
 
     /**
@@ -39,7 +39,7 @@ contract Stake {
      *
      */
     function deposit() external payable {
-        _stakingBalance[msg.sender] += msg.value;
+        stakingBalance[msg.sender] += msg.value;
         middlePool += msg.value;
 
         Transaction memory latestTransaction;
@@ -57,12 +57,12 @@ contract Stake {
      */
     function withdraw(uint256 _amount) external {
         require(
-            _stakingBalance[msg.sender] >= _amount,
+            stakingBalance[msg.sender] >= _amount,
             "Not enough balance in pool."
         );
 
         payable(msg.sender).transfer(_amount);
-        _stakingBalance[msg.sender] -= _amount;
+        stakingBalance[msg.sender] -= _amount;
         middlePool -= _amount;
 
         Transaction memory latestTransaction;
@@ -73,6 +73,10 @@ contract Stake {
         emit UpdateLatestTransaction(msg.sender, "withdraw", _amount);
     }
 
+    /**
+     * Get latest 5 transactions
+     *
+     */
     function getLatestFiveTransactions()
         public
         view
